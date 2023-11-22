@@ -1,0 +1,33 @@
+service: serverless-middy-pattern
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  stage: ${opt:stage, 'dev'}
+  environment:
+    USERS_DDB_TABLE_NAME: users
+    DDB_OFFLINE_ENDPOINT: http://localhost:8000
+    AWS_ACCESS_KEY_ID: accessKeyId
+    AWS_SECRET_ACCESS_KEY: secretAccessKey
+
+package:
+  individually: true
+
+functions:
+  getUser:
+    handler: src/functions/getUser/framework/handler.handler
+    events:
+      - http:
+          path: 'users/{staffNumber}'
+          method: get
+
+custom:
+  stages:
+    - dev
+  webpack:
+    webpackConfig: 'webpack-sls-offline.config.js'
+
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-webpack
+  - serverless-offline
